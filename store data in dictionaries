@@ -10,8 +10,8 @@ def read_file_create_dictionary(file_path):
             student_data = {
                 'Tutorial Group': values[0],
                 'Student ID': values[1],
-                'Name': values[2],
-                'School': values[3],
+                'Name': values[3],
+                'School': values[2],
                 'Gender': values[4],
                 'CGPA': float(values[5])
             }
