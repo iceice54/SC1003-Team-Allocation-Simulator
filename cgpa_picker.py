@@ -6,11 +6,11 @@ with open('records.csv','r') as f:
         line = line.strip().split(',')
         if line[0] != tg:
             newdict = {}
-            newdict[line[1]] = {xkeys[0]:line[0],xkeys[2]:line[2],xkeys[3]:line[3],xkeys[4]:line[4],xkeys[5]:line[5]}
+            newdict[line[1]] = {xkeys[0]:line[0],xkeys[2]:line[2],xkeys[3]:line[3],xkeys[4]:line[4],xkeys[5]:float(line[5])}
             l.append(newdict)
             tg = line[0]
         else:
-            newdict[line[1]] = {xkeys[0]:line[0],xkeys[2]:line[2],xkeys[3]:line[3],xkeys[4]:line[4],xkeys[5]:line[5]}
+            newdict[line[1]] = {xkeys[0]:line[0],xkeys[2]:line[2],xkeys[3]:line[3],xkeys[4]:line[4],xkeys[5]:float(line[5])}
 
     
 
