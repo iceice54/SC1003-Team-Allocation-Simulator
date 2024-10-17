@@ -1,3 +1,3 @@
-from read_to_dict import read_file_create_dictionary
+from read_to_dict import read_to_dict
 
-student_data = read_file_create_dictionary("records.csv")
+student_data_dict = read_to_dict("records.csv")

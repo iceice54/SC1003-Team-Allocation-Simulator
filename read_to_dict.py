@@ -1,4 +1,4 @@
-def read_file_create_dictionary(file_path):
+def read_to_dict(file_path):
 
     data = []
 
@@ -46,4 +46,4 @@ def read_file_create_dictionary(file_path):
     return output_dict
 
 
-# read_file_create_dictionary(file_path="records.csv")
+# read_to_dict(file_path="records.csv")
