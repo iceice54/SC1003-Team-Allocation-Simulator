@@ -23,7 +23,7 @@ def read_file_create_dictionary(file_path):
 
     # creating the dictionary
     for record in data:
-        tutorial_group = record["Tutorial Group"]
+        tutorial_group = record['Tutorial Group']
         student_id = record['Student ID']
 
         # create dictionary for each tutorial group
@@ -43,5 +43,7 @@ def read_file_create_dictionary(file_path):
 
     pprint.pprint(output_dict)
 
+    return output_dict
 
-read_file_create_dictionary(file_path="records.csv")
+
+# read_file_create_dictionary(file_path="records.csv")
