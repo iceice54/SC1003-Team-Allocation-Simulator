@@ -1,7 +1,5 @@
 def allocate_teams(student_list):
     group_list = [[] for i in range(10)]
-    print("THIS IS STUDENT LIST")
-    pprint.pprint(student_list)
     count = 0
     for i in range(4):
         #1st and 3rd picks take highest cgpa, 2nd and 4th picks take lowest cgpa to balance cgpa
@@ -25,12 +23,6 @@ def allocate_teams(student_list):
                 group_list[group_num].append(next_student)
                 student_list.pop(index)
                 count += 1
-        # pprint.pprint(group_list)
-    # pprint.pprint(group_list)
-    # pprint.pprint student_list)
-    print(count)
-    print("TESTESTETST")
-    pprint.pprint(student_list)
     cgpa = []
     for group in group_list:
         groupcgpa = 0
@@ -43,7 +35,6 @@ def allocate_teams(student_list):
 
     for i in range(len(student_list)): #0, 9
         group_num = sortedcgpa[i][0]
-        pprint.pprint(student_list[-1])
         student_list[-1][6] = group_num
         student_list[-1][5] = True
         group_list[group_num - 1].append(student_list[-1])
@@ -58,7 +49,7 @@ def allocate_teams(student_list):
         groupncgpa.append(groupcgpa)
         cgpa.append(groupncgpa)
 
-    pprint.pprint(group_list)
+    # pprint.pprint(group_list)
     return cgpa
     
 
@@ -79,27 +70,22 @@ def exceed_check(group, new_student):
     increase_count(genders, new_gender)
     for school_count in schools.values():
         if school_count > 2:
-            print("School exceed")
             return True
     for gender_count in genders.values():
         if gender_count > 3:
-            print("Gender exceed")
             return True
     return False
 
 #checks if swapping will result in valid group
 def swap_validator(student, try_student, group_list):
     student_group_copy = group_list[student[6]-1][:]
-    print("lala")
     if not exceed_check(student_group_copy, try_student):
         #test student has group assigned, check if student can fit in the group
-        print("here")
         try_student_assigned = try_student[5]
         if try_student_assigned:
             try_student_group_copy = group_list[try_student[6]-1][:]
             #compare group assuming test student is swapped out
             try_student_group_copy.pop(try_student_group_copy.index(try_student))
-            print("2")
             return not exceed_check(try_student_group_copy, student)
         #test student has no group assigned, no need to check
         else:
@@ -116,7 +102,7 @@ def swapper(next_student, group_num, group_list, student_list):
     #loop through every student to check if can swap
     while search_up == True or search_down == True:
         #check if there are still any more students of higher/lower gpa to check
-        if index + index_up > 49:
+        if index + index_up > len(student_list)-1:
             search_up = False
         if index - index_down < 0:
             search_down = False
@@ -135,8 +121,6 @@ def swapper(next_student, group_num, group_list, student_list):
 
         index_up += 1
         index_down += 1
-        print(index_up)
-        print(index_down)
 
     if swap == True:
         swap_student = try_student
@@ -232,6 +216,9 @@ from read_to_dict import read_to_dict
 import pprint
 
 student_data_dict = read_to_dict("records.csv")
-sorted = sort_tg_by_cgpa(student_data_dict['G-4'])
-# pprint.pprint(sorted)
-pprint.pprint(allocate_teams(sorted))
+# sorted = sort_tg_by_cgpa(student_data_dict['G-20'])
+# # pprint.pprint(sorted)
+# pprint.pprint(allocate_teams(sorted))
+for i in student_data_dict:
+    sorted = sort_tg_by_cgpa(student_data_dict[i])
+    pprint.pprint(allocate_teams(sorted))
