@@ -13,7 +13,9 @@ def read_to_dict(file_path):
                 'Name': values[3],
                 'School': values[2],
                 'Gender': values[4],
-                'CGPA': float(values[5])
+                'CGPA': float(values[5]),
+                'Assigned': False,
+                'Group Number': 0
             }
 
             data.append(student_data)
@@ -35,13 +37,15 @@ def read_to_dict(file_path):
             'Name': record['Name'],
             'School': record['School'],
             'Gender': record['Gender'],
-            'CGPA': record['CGPA']
+            'CGPA': record['CGPA'],
+            'Assigned': record['Assigned'],
+            'Group Number': record['Group Number']
         }
 
     # Print the output
     import pprint
 
-    pprint.pprint(output_dict)
+    # pprint.pprint(output_dict)
 
     return output_dict
 
