@@ -1,113 +1,68 @@
-def allocate_teams(sorted_list):
-    list_copy = sorted_list[:]
+def allocate_teams(student_list):
     group_list = [[] for i in range(10)]
-
+    print("THIS IS STUDENT LIST")
+    pprint.pprint(student_list)
+    count = 0
     for i in range(4):
+        #1st and 3rd picks take highest cgpa, 2nd and 4th picks take lowest cgpa to balance cgpa
         if i % 2 == 0:
             index = -1
         else:
             index = 0
+        #iterate through group 1 to 10
         for group_num in range(len(group_list)):
-            next_student = list_copy[index]
-            exceeded = check_if_exceed(group_list[group_num], next_student)
-            if exceeded:
-                a,b = swapper(next_student, group_list, sorted_list)
-                if a != 0:
-                    list_copy.pop(a)
-                list_copy.pop(b)
+            next_student = student_list[index]
+            #check if selected student will cause group to exceed
+            exceed = exceed_check(group_list[group_num], next_student)
+            next_student[6] = group_num + 1
+            if exceed:
+                #swap selected student with another valid student
+                swapper(next_student,group_num, group_list, student_list)
             else:
+                #add student to group
                 next_student[6] = group_num + 1
                 next_student[5] = True
                 group_list[group_num].append(next_student)
-                list_copy.pop(index)
-        pprint.pprint(group_list)
+                student_list.pop(index)
+                count += 1
+        # pprint.pprint(group_list)
+    # pprint.pprint(group_list)
+    # pprint.pprint student_list)
+    print(count)
+    print("TESTESTETST")
+    pprint.pprint(student_list)
+    cgpa = []
+    for group in group_list:
+        groupcgpa = 0
+        groupncgpa = [group_list.index(group)+1]
+        for student in group:
+            groupcgpa += student[1]
+        groupncgpa.append(groupcgpa)
+        cgpa.append(groupncgpa)
+    sortedcgpa = sort_groups_by_cgpa(cgpa)
+
+    for i in range(len(student_list)): #0, 9
+        group_num = sortedcgpa[i][0]
+        pprint.pprint(student_list[-1])
+        student_list[-1][6] = group_num
+        student_list[-1][5] = True
+        group_list[group_num - 1].append(student_list[-1])
+        student_list.pop(-1)
+
+    cgpa = []
+    for group in group_list:
+        groupcgpa = 0
+        groupncgpa = [group_list.index(group)+1]
+        for student in group:
+            groupcgpa += student[1]
+        groupncgpa.append(groupcgpa)
+        cgpa.append(groupncgpa)
+
     pprint.pprint(group_list)
+    return cgpa
+    
 
-#checks if swapping will result in valid group
-def swap_validator(student, test_student, group_list):
-    student_group_num = student[6]
-    test_student_group_num = test_student[6]
-    student_group = group_list[student_group_num-1][:]
-    #compare group assuming student is swapped out
-    student_group.pop(student_group.index(student))
-    if check_if_exceed(student_group, test_student) == False:
-        #test student has group assigned, check if student can fit in the group
-        if test_student_group_num != 0:
-            test_student_group = group_list[test_student_group_num-1][:]
-            #compare group assuming test student is swapped out
-            test_student_group.pop(test_student_group.index(test_student))
-            return not check_if_exceed(test_student_group, student)
-        #test student has no group assigned, no need to check
-        elif test_student_group_num == 0:
-            return True
-    else:
-        return False
-
-
-def swapper(student, group_list, student_list):
-    #find closest cgpa student
-    index = student_list.index(student)
-    swap = False
-    search_up, search_down = True, True
-    index_up, index_down = 1, 1
-    while search_up == True or search_down == True:
-        if index + index_up > 49:
-            search_up = False
-        if index - index_down < 0:
-            search_down = False
-        
-        if search_up == True:
-            test_student = student_list[index + index_up]
-            if swap_validator(student, test_student, group_list) == True:
-                swap = True
-                break
-            else:
-                continue
-
-        if search_down == True:
-            test_student = student_list[index - index_down]
-            if swap_validator(student, test_student, group_list) == True:
-                swap = True
-                break
-            else:
-                continue
-
-        index_up += 1
-        index_down += 1
-
-    if swap == True:
-        student_group_num = student[6]
-        student_group = group_list[student_group_num-1]
-        if test_student[6] == 0:
-            student_group.pop(student_group.index(student))
-            student_group.append(test_student)
-            test_student[6] = student_group_num
-            student[6] = 0
-            return 0, test_student
-        else:
-            test_student_group_num = test_student[6]
-            test_student_group = group_list[test_student_group_num-1]
-            student_group.pop(student_group.index(student))
-            student_group.append(test_student)
-            test_student_group.pop(test_student_group.index(test_student))
-            test_student_group.append(student)
-            student[6] = test_student_group_num
-            test_student[6] = student_group_num
-            return student, test_student
-            
-
-    #check if that student still exceeds in group
-    #if not, set as student
-    #if still exceeds, find next closest cgpa student
-
-
-def increase_count(dict, key):
-    if key not in dict:
-        dict[key] = 1
-    else:
-        dict[key] += 1
-
-def check_if_exceed(group, new_student):
+def exceed_check(group, new_student):
     schools = {}
     genders = {}
     #tally current genders and schools for each group
@@ -132,7 +87,94 @@ def check_if_exceed(group, new_student):
             return True
     return False
 
-def sort_by_cgpa(tutorial_group):
+#checks if swapping will result in valid group
+def swap_validator(student, try_student, group_list):
+    student_group_copy = group_list[student[6]-1][:]
+    print("lala")
+    if not exceed_check(student_group_copy, try_student):
+        #test student has group assigned, check if student can fit in the group
+        print("here")
+        try_student_assigned = try_student[5]
+        if try_student_assigned:
+            try_student_group_copy = group_list[try_student[6]-1][:]
+            #compare group assuming test student is swapped out
+            try_student_group_copy.pop(try_student_group_copy.index(try_student))
+            print("2")
+            return not exceed_check(try_student_group_copy, student)
+        #test student has no group assigned, no need to check
+        else:
+            return True
+    else:
+        return False
+
+def swapper(next_student, group_num, group_list, student_list):
+    #find closest cgpa student
+    index = student_list.index(next_student)
+    swap = False
+    search_up, search_down = True, True
+    index_up, index_down = 1, 1
+    #loop through every student to check if can swap
+    while search_up == True or search_down == True:
+        #check if there are still any more students of higher/lower gpa to check
+        if index + index_up > 49:
+            search_up = False
+        if index - index_down < 0:
+            search_down = False
+        
+        if search_up == True:
+            try_student = student_list[index + index_up]
+            if swap_validator(next_student, try_student, group_list):
+                swap = True
+                break
+
+        if search_down == True:
+            try_student = student_list[index - index_down]
+            if swap_validator(next_student, try_student, group_list):
+                swap = True
+                break
+
+        index_up += 1
+        index_down += 1
+        print(index_up)
+        print(index_down)
+
+    if swap == True:
+        swap_student = try_student
+        student_group_num = group_num + 1
+        student_group = group_list[student_group_num-1]
+        student_assigned = swap_student[5]
+        if not student_assigned:
+            # student_group.pop(student_group.index(next_student))
+            student_group.append(swap_student)
+            swap_student[6] = student_group_num
+            swap_student[5] = True
+            next_student[6] = 0
+            next_student[5] = False
+            student_list.pop(student_list.index(swap_student))
+            return
+        else:
+            swap_student_group_num = swap_student[6]
+            swap_student_group = group_list[swap_student_group_num-1]
+            # student_group.pop(student_group.index(next_student))
+            student_group.append(swap_student)
+            swap_student_group.pop(swap_student_group.index(swap_student))
+            swap_student_group.append(next_student)
+            next_student[6] = swap_student_group_num
+            next_student[5] = True
+            swap_student[6] = student_group_num
+            swap_student[5] = True
+            student_list.pop(student_list.index(next_student))
+            student_list.pop(student_list.index(swap_student))
+
+            return
+
+def increase_count(dict, key):
+    if key not in dict:
+        dict[key] = 1
+    else:
+        dict[key] += 1
+
+def sort_tg_by_cgpa(tutorial_group):
     output = []
     for id, data in tutorial_group.items():
         student_data = [id, data['CGPA'], data['Gender'], data['Name'], data['School'], data['Assigned'], data['Group Number']]
@@ -160,11 +202,36 @@ def sort_by_cgpa(tutorial_group):
 
     return output
 
+def sort_groups_by_cgpa(groups):
+    # [[1, 16.1], [2, 16.3]]
+    output = []
+    for group in groups:
+        cgpa = group[1]
+
+        if output == []:
+            output.append(group)
+            continue
+
+        index = 0
+        for entry in output:
+            entry_cgpa = entry[1]
+            if cgpa > entry_cgpa:
+                #move right in list
+                index += 1
+                #at end of list
+                if index == len(output):
+                    output.append(group)
+                    break
+                continue
+            elif cgpa <= entry_cgpa:
+                output.insert(index, group)
+                break
+    return output
+
 from read_to_dict import read_to_dict
 import pprint
 
 student_data_dict = read_to_dict("records.csv")
-sorted = sort_by_cgpa(student_data_dict['G-1'])
-pprint.pprint(sorted)
-allocate_teams(sorted)
+sorted = sort_tg_by_cgpa(student_data_dict['G-4'])
 # pprint.pprint(sorted)
+pprint.pprint(allocate_teams(sorted))
