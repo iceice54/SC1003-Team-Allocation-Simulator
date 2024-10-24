@@ -37,13 +37,8 @@ def read_to_dict(file_path):
             'Gender': record['Gender'],
             'CGPA': record['CGPA']
         }
-
-    # Print the output
-    import pprint
-
-    pprint.pprint(output_dict)
-
     return output_dict
+
 
 
 # read_to_dict(file_path="records.csv")
