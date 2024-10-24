@@ -1,4 +1,6 @@
 def allocate_teams(student_list):
+    student_copy = student_list[:]
+    student_copy2 = student_list[:]
     group_list = [[] for i in range(10)]
     count = 0
     for i in range(4):
@@ -15,7 +17,12 @@ def allocate_teams(student_list):
             next_student[6] = group_num + 1
             if exceed:
                 #swap selected student with another valid student
-                swapper(next_student,group_num, group_list, student_list)
+                swap = swapper(student_list[-1], group_num - 1, group_list, student_copy, student_list)
+                if swap == False:
+                    student_list[-1][6] = group_num
+                    student_list[-1][5] = True
+                    group_list[group_num - 1].append(student_list[-1])
+                    student_list.pop(-1)
             else:
                 #add student to group
                 next_student[6] = group_num + 1
@@ -32,13 +39,32 @@ def allocate_teams(student_list):
         groupncgpa.append(groupcgpa)
         cgpa.append(groupncgpa)
     sortedcgpa = sort_groups_by_cgpa(cgpa)
-
-    for i in range(len(student_list)): #0, 9
+    print(sortedcgpa)
+    pprint.pprint(student_list)
+    print("here")
+    i=0
+    while i < len(student_list):
+        # pprint.pprint(student_list)
         group_num = sortedcgpa[i][0]
-        student_list[-1][6] = group_num
-        student_list[-1][5] = True
-        group_list[group_num - 1].append(student_list[-1])
-        student_list.pop(-1)
+        if exceed_check(group_list[group_num - 1], student_list[-1]):
+            # print(student_list[-1])
+            # print(group_num)
+            swap = swapper(student_list[-1], group_num - 1, group_list, student_copy, student_list)
+            if swap == False:
+                student_list[-1][6] = group_num
+                student_list[-1][5] = True
+                print(student_list[-1])
+                group_list[group_num - 1].append(student_list[-1])
+                student_list.pop(-1)
+                print(student_list[-1])
+        else:
+            student_list[-1][6] = group_num
+            student_list[-1][5] = True
+            group_list[group_num - 1].append(student_list[-1])
+            student_list.pop(-1)
+        i += 1
+        # pprint.pprint(group_list)
+        
 
     cgpa = []
     for group in group_list:
@@ -49,7 +75,7 @@ def allocate_teams(student_list):
         groupncgpa.append(groupcgpa)
         cgpa.append(groupncgpa)
 
-    # pprint.pprint(group_list)
+    pprint.pprint(group_list)
     return cgpa
     
 
@@ -93,7 +119,8 @@ def swap_validator(student, try_student, group_list):
     else:
         return False
 
-def swapper(next_student, group_num, group_list, student_list):
+def swapper(next_student, group_num, group_list, student_list, student_real):
+    # pprint.pprint(student_list)
     #find closest cgpa student
     index = student_list.index(next_student)
     swap = False
@@ -134,7 +161,8 @@ def swapper(next_student, group_num, group_list, student_list):
             swap_student[5] = True
             next_student[6] = 0
             next_student[5] = False
-            student_list.pop(student_list.index(swap_student))
+            # student_list.pop(student_list.index(swap_student))
+            student_real.pop(student_real.index(swap_student))
             return
         else:
             swap_student_group_num = swap_student[6]
@@ -147,10 +175,13 @@ def swapper(next_student, group_num, group_list, student_list):
             next_student[5] = True
             swap_student[6] = student_group_num
             swap_student[5] = True
-            student_list.pop(student_list.index(next_student))
-            student_list.pop(student_list.index(swap_student))
-
+            # student_list.pop(student_list.index(next_student))
+            if swap_student in student_real:
+                student_real.pop(student_real.index(swap_student))
+            # student_list.pop(student_list.index(swap_student))
             return
+    else:
+        return False
 
 def increase_count(dict, key):
     if key not in dict:
@@ -216,9 +247,9 @@ from read_to_dict import read_to_dict
 import pprint
 
 student_data_dict = read_to_dict("records.csv")
-# sorted = sort_tg_by_cgpa(student_data_dict['G-20'])
-# # pprint.pprint(sorted)
-# pprint.pprint(allocate_teams(sorted))
-for i in student_data_dict:
-    sorted = sort_tg_by_cgpa(student_data_dict[i])
-    pprint.pprint(allocate_teams(sorted))
+sorted = sort_tg_by_cgpa(student_data_dict['G-2'])
+# pprint.pprint(sorted)
+pprint.pprint(allocate_teams(sorted))
+# for i in student_data_dict:
+#     sorted = sort_tg_by_cgpa(student_data_dict[i])
+#     pprint.pprint(allocate_teams(sorted))
