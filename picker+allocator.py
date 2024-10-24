@@ -34,6 +34,9 @@ def increase_count(dict, key):
         dict[key] += 1
 
 def exceed_value(group, new_student):
+    # returns 0 if new student satisfies requirement
+    # returns is 2 if both gender and schools dont match requirement
+    # returns is 1 if one of gender and schools dont match requirement  
     exceed_value = 0
     schools = {}
     genders = {}
@@ -57,6 +60,7 @@ def exceed_value(group, new_student):
     return exceed_value
     
 def finder(group, inputlist):
+    # finds best student to add into group
     for i in inputlist:
         if exceed_value(group, i) == 0:
             return i
@@ -95,13 +99,14 @@ def grouper(tg):
 for i in grouper(data['G-1']): #e.g for first tg
     print(i)
 
-
+#edit the main dictionary to include the groups
 for tgname,tg in data.items():  
     groupedtg = grouper(tg)
     for count,group in enumerate(groupedtg):
         for student in group:
             studentid = student[0]
             data[tgname][studentid]['group'] = 'group ' + str(count+1)
+
 
 import pprint
 
