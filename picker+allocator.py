@@ -104,11 +104,14 @@ def findsucess(tg):
     sucess = 0
     half_sucess = 0
     fail = 0
+    cgpas = []
     for i in grouper(data[tg]): #e.g for first tg
         error = 0
         schools ={}
         genders = {}
         for student in i:
+            cgpa = student[1]
+            cgpas.append(cgpa)
             increase_count(schools, student[2])
             increase_count(genders, student[3])
         for schoolnum in schools.values():
@@ -123,13 +126,19 @@ def findsucess(tg):
             half_sucess += 1
         else:
             sucess += 1
-    return(sucess,half_sucess,fail)
- 
+    spread = max(cgpas) - min(cgpas)
+    return(sucess,half_sucess,fail,spread)
+
+spreads = []
 for tg in data.keys():
-    a,b,c = findsucess(tg)
+    a,b,c,spread = findsucess(tg)
     sucess += a
     half_sucess += b
     fail += c
+    spreads.append(spread)
+
+print(f"minspread is {min(spreads)} and maxspread is {max(spreads)}, \
+average spread is {sum(spreads)/len(spreads)}")
 
 print(f'sucess: {sucess}, half_sucess: {half_sucess}, fail: {fail}')
  
