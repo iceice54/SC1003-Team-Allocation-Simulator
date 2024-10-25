@@ -1,6 +1,5 @@
 def allocate_teams(student_list):
     student_copy = student_list[:]
-    student_copy2 = student_list[:]
     group_list = [[] for i in range(10)]
     count = 0
     for i in range(4):
@@ -161,8 +160,8 @@ def swapper(next_student, group_num, group_list, student_list, student_real):
             swap_student[5] = True
             next_student[6] = 0
             next_student[5] = False
-            # student_list.pop(student_list.index(swap_student))
-            student_real.pop(student_real.index(swap_student))
+            student_list.pop(student_list.index(swap_student))
+            # student_real.pop(student_real.index(swap_student))
             return
         else:
             swap_student_group_num = swap_student[6]
@@ -175,10 +174,9 @@ def swapper(next_student, group_num, group_list, student_list, student_real):
             next_student[5] = True
             swap_student[6] = student_group_num
             swap_student[5] = True
-            # student_list.pop(student_list.index(next_student))
-            if swap_student in student_real:
-                student_real.pop(student_real.index(swap_student))
-            # student_list.pop(student_list.index(swap_student))
+            student_list.pop(student_list.index(next_student))
+            # student_real.pop(student_real.index(swap_student))
+            student_list.pop(student_list.index(swap_student))
             return
     else:
         return False
@@ -247,7 +245,7 @@ from read_to_dict import read_to_dict
 import pprint
 
 student_data_dict = read_to_dict("records.csv")
-sorted = sort_tg_by_cgpa(student_data_dict['G-2'])
+sorted = sort_tg_by_cgpa(student_data_dict['G-1'])
 # pprint.pprint(sorted)
 pprint.pprint(allocate_teams(sorted))
 # for i in student_data_dict:

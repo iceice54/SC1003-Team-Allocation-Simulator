@@ -15,7 +15,7 @@ def read_to_dict(file_path):
                 'Gender': values[4],
                 'CGPA': float(values[5]),
                 'Assigned': False,
-                'Group Number': 0
+                'Group Number': -1
             }
 
             data.append(student_data)
