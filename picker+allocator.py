@@ -96,20 +96,53 @@ def picker(tup):
 def grouper(tg):
     return picker(sorter(tg))
 
+sucess = 0
+half_sucess = 0
+fail = 0
 
-for i in grouper(data['G-1']): #e.g for first tg
-    print(i)
+def findsucess(tg):
+    sucess = 0
+    half_sucess = 0
+    fail = 0
+    for i in grouper(data[tg]): #e.g for first tg
+        error = 0
+        schools ={}
+        genders = {}
+        for student in i:
+            increase_count(schools, student[2])
+            increase_count(genders, student[3])
+        for schoolnum in schools.values():
+            if schoolnum > 2:
+                error += 1
+        for gendersnum in genders.values():
+            if gendersnum > 3:
+                error += 1
+        if error == 2:
+            fail += 1
+        elif error == 1:
+            half_sucess += 1
+        else:
+            sucess += 1
+    return(sucess,half_sucess,fail)
+ 
+for tg in data.keys():
+    a,b,c = findsucess(tg)
+    sucess += a
+    half_sucess += b
+    fail += c
 
-gpatotal_list = []
-for i in grouper(data['G-1']): #total gpas for each group in first tg
-    total = 0
-    for student in i:
-        total += student[1]
-    gpatotal_list.append(round(total,2))
-print(gpatotal_list)
+print(f'sucess: {sucess}, half_sucess: {half_sucess}, fail: {fail}')
+ 
+# gpatotal_list = []
+# for i in grouper(data['G-1']): #total gpas for each group in first tg
+#     total = 0
+#     for student in i:
+#         total += student[1]
+#     gpatotal_list.append(round(total,2))
+# print(gpatotal_list)
 
-from statistics import stdev
-print(stdev(gpatotal_list))
+# from statistics import stdev
+# print(stdev(gpatotal_list))
 
 #edit the main dictionary to include the teams of the students
 for tgname,tg in data.items():  
