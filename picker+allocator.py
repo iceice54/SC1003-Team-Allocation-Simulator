@@ -118,10 +118,17 @@ for tgname,tg in data.items():
         for student in group:
             studentid = student[0]
             data[tgname][studentid]['Team Assigned'] = 'Team ' + str(count+1)
+<<<<<<< Updated upstream
 
 
 
 import pprint
+=======
+
+
+import pprint
+
+>>>>>>> Stashed changes
 pprint.pprint(data['G-1'])
 
 
