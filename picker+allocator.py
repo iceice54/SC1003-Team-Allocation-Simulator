@@ -95,22 +95,34 @@ def picker(tup):
 
 def grouper(tg):
     return picker(sorter(tg))
-        
+
+
 for i in grouper(data['G-1']): #e.g for first tg
     print(i)
 
-#edit the main dictionary to include the groups
+gpatotal_list = []
+for i in grouper(data['G-1']): #total gpas for each group in first tg
+    total = 0
+    for student in i:
+        total += student[1]
+    gpatotal_list.append(round(total,2))
+print(gpatotal_list)
+
+from statistics import stdev
+print(stdev(gpatotal_list))
+
+#edit the main dictionary to include the teams of the students
 for tgname,tg in data.items():  
     groupedtg = grouper(tg)
     for count,group in enumerate(groupedtg):
         for student in group:
             studentid = student[0]
-            data[tgname][studentid]['group'] = 'group ' + str(count+1)
+            data[tgname][studentid]['Team Assigned'] = 'Team ' + str(count+1)
+
 
 
 import pprint
-
-#pprint.pprint(data)
+pprint.pprint(data['G-1'])
 
 
 
