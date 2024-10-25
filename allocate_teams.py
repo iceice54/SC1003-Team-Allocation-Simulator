@@ -14,14 +14,14 @@ def allocate_teams(student_list):
         for group_num in range(len(group_list)):
             next_student = remaining_students[index]
             group = group_list[group_num]
-            if exceed_check(group, next_student):
+            if not exceed_check(group, next_student):
+                assign_group(next_student, group_num, group, remaining_students)
+            else:
                 if swapper(next_student, all_students, remaining_students, group_list, group_num, group):
                     pass
                 else:
                     #if swapper cant find any valid target, just assign
                     assign_group(next_student, group_num, group, remaining_students)
-            else:
-                assign_group(next_student, group_num, group, remaining_students)
 
 
     group_cgpa = []
@@ -41,13 +41,14 @@ def allocate_teams(student_list):
         group_num = sorted_output[i][0]
         group = group_list[group_num]
         student = remaining_students[-1]
-        if exceed_check(group, student):
+        if not exceed_check(group, student):
+            assign_group(student, group_num, group, remaining_students)
+        else:
             if swapper(student, all_students, remaining_students, group_list, group_num, group):
                 pass
             else:
-                assign_group(student, group_num, group, remaining_students)
-        else:
-            assign_group(student, group_num, group, remaining_students)
+                #if swapper cant find any valid target, just assign
+                assign_group(student, group_num, group, remaining_students)            
 
     return group_list
 
