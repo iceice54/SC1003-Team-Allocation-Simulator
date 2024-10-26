@@ -14,7 +14,7 @@ def allocate_teams(student_list):
         for group_num in range(len(group_list)):
             next_student = remaining_students[index]
             group = group_list[group_num]
-            if not exceed_check(group, next_student):
+            if not exceed_gender_or_school(group, next_student):
                 assign_group(next_student, group_num, group, remaining_students)
             else:
                 if swapper(next_student, all_students, remaining_students, group_list, group_num, group):
@@ -41,7 +41,7 @@ def allocate_teams(student_list):
         group_num = sorted_output[i][0]
         group = group_list[group_num]
         student = remaining_students[-1]
-        if not exceed_check(group, student):
+        if not exceed_gender_or_school(group, student):
             assign_group(student, group_num, group, remaining_students)
         else:
             if swapper(student, all_students, remaining_students, group_list, group_num, group):
@@ -60,7 +60,7 @@ def assign_group(student, group_num, group, remaining_students):
         remaining_students.remove(student)
 
 def swap_validator(student, try_student, group_list, group):
-    if exceed_check(group, try_student):
+    if exceed_gender_or_school(group, try_student):
         return False
     
     if try_student[5]:
@@ -68,7 +68,7 @@ def swap_validator(student, try_student, group_list, group):
         #if student will fit in try student group after swap
         try_student_group_copy = group_list[try_student[6]][:]
         try_student_group_copy.remove(try_student)
-        return not exceed_check(try_student_group_copy, student)
+        return not exceed_gender_or_school(try_student_group_copy, student)
     else:
         return True
 
@@ -129,7 +129,7 @@ def increase_count(dict, key):
     else:
         dict[key] += 1
 
-def exceed_check(group, new_student):
+def exceed_gender_or_school(group, new_student):
     schools = {}
     genders = {}
     #tally current genders and schools for each group
