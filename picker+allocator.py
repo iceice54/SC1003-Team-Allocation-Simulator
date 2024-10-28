@@ -109,11 +109,12 @@ def findsucess(tg):
         error = 0
         schools ={}
         genders = {}
+        cgpa = 0
         for student in i:
-            cgpa = student[1]
-            cgpas.append(cgpa)
+            cgpa += student[1]
             increase_count(schools, student[2])
             increase_count(genders, student[3])
+        cgpas.append(cgpa)
         for schoolnum in schools.values():
             if schoolnum > 2:
                 error += 1
