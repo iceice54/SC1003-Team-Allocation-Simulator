@@ -180,6 +180,7 @@ successful = 0
 unsuccessful = 0
 half = 0
 spreads = []
+final_data = []
 for tgnum in student_data_dict:
     output = []
     tutorial_group = student_data_dict[tgnum]
@@ -188,8 +189,10 @@ for tgnum in student_data_dict:
         cgpa = student_data[1]
         sort_by_ascending_cgpa(student_data, cgpa, output)
     groupz = (allocate_teams(output))
-    print("THIS IS TG", tgnum)
-    pprint.pprint(groupz)
+    for group in groupz:
+        for student in group:
+            final_student_data = [tgnum, student[0],student[4],student[3],student[2],str(student[1]),str(student[6])] #“Tutorial Group”, “Student ID”, “School”, “Name”, “Gender”, “CGPA”, "Team Assigned"
+            final_data.append(final_student_data)
     cgpas = []
 
     for group in groupz:
@@ -225,7 +228,12 @@ for tgnum in student_data_dict:
     spread = max(cgpas) - min(cgpas)
     spreads.append(spread)
         
-
+with open('new_records.csv','w') as f:
+    f.write('Tutorial Group,Student ID,School,Name,Gender,CGPA,Team Assigned\n')
+    for i in final_data:
+        f.writelines(','.join(i))
+        f.write('\n')
+            
 print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
 print(f"minspread is {min(spreads)} and maxspread is {max(spreads)}, \
 average spread is {sum(spreads)/len(spreads)}")
