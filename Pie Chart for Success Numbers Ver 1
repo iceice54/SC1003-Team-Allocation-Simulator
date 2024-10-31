@@ -1,0 +1,20 @@
+import matplotlib.pyplot as plt
+
+
+Scount= 5995 # Add counter for success cases
+Hfscount=2 # Add counter for half success cases
+fcount=3 # Add counter for Not success cases
+# Data to plot
+labels = ['Successful','Half Successful','Not Successful']
+sizes = [Scount, Hfscount, fcount]  # The sizes of each category
+colors = ['green', 'yellow','red']  # Colors for each slice
+explode = (0, 0.5, 1)  # Explode the slice for clarity (Half Success, and Not Success) 
+
+# Create a pie chart
+patches, texts = plt.pie(sizes, labels=labels, explode = explode, colors=colors, startangle=140)
+plt.legend(patches, labels, loc="best")
+# Equal aspect ratio ensures that pie chart is circular
+plt.axis('equal')  
+plt.title('Distribution of cases')
+plt.show()
+
