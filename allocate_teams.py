@@ -179,7 +179,7 @@ student_data_dict = read_to_dict("records.csv")
 successful = 0
 unsuccessful = 0
 half = 0
-spreads = []
+stdevs = []
 final_data = []
 for tgnum in student_data_dict:
     output = []
@@ -225,8 +225,18 @@ for tgnum in student_data_dict:
 
         cgpas.append(cgpa)
 
-    spread = max(cgpas) - min(cgpas)
-    spreads.append(spread)
+    # Step 1: Compute the mean
+    mean = sum(cgpas) / 10
+
+    # Step 2: Calculate squared differences
+    squared_diffs = [(x - mean) ** 2 for x in cgpas]
+
+    # Step 3: Calculate variance
+    variance = sum(squared_diffs) / len(data)
+
+    # Step 4: Calculate standard deviation
+    stdev = variance ** 0.5
+    stdevs.append(stdev)
         
 with open('new_records.csv','w') as f:
     f.write('Tutorial Group,Student ID,School,Name,Gender,CGPA,Team Assigned\n')
@@ -235,5 +245,4 @@ with open('new_records.csv','w') as f:
         f.write('\n')
             
 print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
-print(f"minspread is {min(spreads)} and maxspread is {max(spreads)}, \
-average spread is {sum(spreads)/len(spreads)}")
+print(stdevs)
