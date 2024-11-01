@@ -182,6 +182,9 @@ unsuccessful = 0
 half = 0
 stdevs = []
 final_data = []
+schoolfail = 0
+genderfail = 0
+
 for tgnum in student_data_dict:
     output = []
     tutorial_group = student_data_dict[tgnum]
@@ -220,8 +223,11 @@ for tgnum in student_data_dict:
             unsuccessful += 1
         elif not schoolpass:
             half += 1
+            schoolfail += 1
         elif not genderpass:
             half += 1
+            genderfail += 1
+            print(genders)
         else:
             successful += 1
 
@@ -251,6 +257,10 @@ print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} 
 print(stdevs)
 labels = ['Successful', 'Half Successful', 'Not Successful']
 sizes = [successful,half,unsuccessful ]
+colors = ['#99ff99', '#FFA500', '#C30000']
+# Filter out segments with non-zero values for plotting
+filtered_labels = [label for i, label in enumerate(labels) if sizes[i] > 0]
+filtered_sizes = [size for size in sizes if size > 0]
 
 # Calculate percentages, ensuring they sum to exactly 100%
 total = sum(sizes)
@@ -262,20 +272,19 @@ percentages[-1] = 100 - sum(percentages[:-1])  # Adjust last percentage to ensur
 legend_labels = [f'{label}: {percentage:.1f}%' for label, percentage in zip(labels, percentages)]
 
 # Define explode, colors, and start angle
-explode = [0, 0.5, 1]  # "Explode" the first slice (Category A)
-colors = ['#99ff99', '#E1E100', '#ff9999']
+explode = [0.5 if size > 0 else 0 for size in sizes]  # Explode the first non-zero segment
 startangle = 140  # Rotate the chart so the first slice starts at 90 degrees
 
 # Plot the pie chart with explode, colors, and startangle
 fig, ax = plt.subplots()
-wedges, texts= ax.pie(sizes, labels=labels,explode=explode,colors=colors, startangle=startangle)
-
+wedges, _ = ax.pie(filtered_sizes,labels=filtered_labels,explode=[explode[i] for i, size in enumerate(sizes) if size > 0],colors=colors, startangle=140)
 
 # Add the legend with percentage labels
 ax.legend(wedges, legend_labels, title="Distribution of Success Cases", loc="best")
 plt.axis('equal')
 plt.show()
 
-#averageSD= sum(stdevs)/len(stdevs)
-#print(averageSD)
-#averagegpa= sum(cgpas)/len(cgpas)
+averageSD= sum(stdevs)/len(stdevs)
+print(averageSD)
+print(cgpas)
+print(schoolfail,genderfail)
