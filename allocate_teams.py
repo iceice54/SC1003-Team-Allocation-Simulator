@@ -14,43 +14,38 @@ def allocate_teams(student_list):
         for group_num in range(len(group_list)):
             next_student = remaining_students[index]
             group = group_list[group_num]
-            if not exceed_gender_or_school(group, next_student):
-                assign_group(next_student, group_num, group, remaining_students)
-            else:
-                if swapper(next_student, all_students, remaining_students, group_list, group_num, group):
-                    pass
-                else:
-                    #if swapper cant find any valid target, just assign
-                    assign_group(next_student, group_num, group, remaining_students)
+            check_and_assign(next_student, group, group_num, remaining_students, all_students, group_list)
 
-
-    group_cgpa = []
+    total_cgpa_per_group = []
     for group_num in range(len(group_list)):
         total_cgpa = 0
         for student in group_list[group_num]:
             total_cgpa += student[1]
-        group_cgpa.append([group_num, cgpa])
+        total_cgpa_per_group.append([group_num, cgpa])
 
-    sorted_output = []
-    for group in group_cgpa:
-        sort_by_ascending_cgpa(group, group[1], sorted_output)
+    sorted_total_cgpa_per_group = []
+    for group in total_cgpa_per_group:
+        sort_by_ascending_cgpa(group, group[1], sorted_total_cgpa_per_group)
     #sorted_output[[0, 16.4], [1, 16.5], [7, 16.7], ...]
 
     #each group left 1 slot, assign based on gpa e.g. lowest gpa group picks highest gpa student
-    for i in range(len(sorted_output)):
-        group_num = sorted_output[i][0]
+    for group_num_and_cgpa in sorted_total_cgpa_per_group:
+        group_num = group_num_and_cgpa[0]
         group = group_list[group_num]
-        student = remaining_students[-1]
-        if not exceed_gender_or_school(group, student):
-            assign_group(student, group_num, group, remaining_students)
-        else:
-            if swapper(student, all_students, remaining_students, group_list, group_num, group):
-                pass
-            else:
-                #if swapper cant find any valid target, just assign
-                assign_group(student, group_num, group, remaining_students)            
-
+        next_student = remaining_students[-1]
+        check_and_assign(next_student, group, group_num, remaining_students, all_students, group_list)
+              
     return group_list
+
+def check_and_assign(next_student, group, group_num, remaining_students, all_students, group_list):
+    if not exceed_gender_or_school(group, next_student):
+            assign_group(next_student, group_num, group, remaining_students)
+    else:
+        if swapper(next_student, all_students, remaining_students, group_list, group_num, group):
+            pass
+        else:
+            #if swapper cant find any valid target, just assign
+            assign_group(next_student, group_num, group, remaining_students)
 
 def assign_group(student, group_num, group, remaining_students):
     student[6] = group_num
@@ -63,13 +58,14 @@ def swap_validator(student, try_student, group_list, group):
     if exceed_gender_or_school(group, try_student):
         return False
     
+    #try_student already assigned to a group
     if try_student[5]:
         #create copy of try student group and remove try student to see 
         #if student will fit in try student group after swap
         try_student_group_copy = group_list[try_student[6]][:]
         try_student_group_copy.remove(try_student)
         return not exceed_gender_or_school(try_student_group_copy, student)
-    else:
+    else:   
         return True
 
 def swapper(student, all_students, remaining_students, group_list, group_num, group):
@@ -181,6 +177,8 @@ unsuccessful = 0
 half = 0
 stdevs = []
 final_data = []
+exceed = {}
+ccgpas = []
 for tgnum in student_data_dict:
     output = []
     tutorial_group = student_data_dict[tgnum]
@@ -194,7 +192,6 @@ for tgnum in student_data_dict:
             final_student_data = [tgnum, student[0],student[4],student[3],student[2],str(student[1]),str(student[6]+1)] #“Tutorial Group”, “Student ID”, “School”, “Name”, “Gender”, “CGPA”, "Team Assigned"
             final_data.append(final_student_data)
     cgpas = []
-
     for group in groupz:
         schoolpass = True
         genderpass = True
@@ -207,6 +204,7 @@ for tgnum in student_data_dict:
             #student[id, cgpa, gender, name, school, assigned, group number]
             increase_count(schools, student[4])
             increase_count(genders, student[2])
+
         #add gender and school of new student
         for school_count in schools.values():
             if school_count > 2:
@@ -214,6 +212,9 @@ for tgnum in student_data_dict:
         for gender_count in genders.values():
             if gender_count > 3:
                 genderpass = False  
+                print(genders)
+                increase_count(exceed, tgnum)
+                print(tgnum)
         if not schoolpass and not genderpass:
             unsuccessful += 1
         elif not schoolpass:
@@ -224,6 +225,8 @@ for tgnum in student_data_dict:
             successful += 1
 
         cgpas.append(cgpa)
+
+    ccgpas.append(max(cgpas) - min(cgpas))
 
     # Step 1: Compute the mean
     mean = sum(cgpas) / 10
@@ -245,4 +248,18 @@ with open('new_records.csv','w') as f:
         f.write('\n')
             
 print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
-print(stdevs)
+# print(stdevs)
+pprint.pprint(exceed)
+print(sum(ccgpas)/120)
+
+for tgnum in exceed:
+    malecount = 0
+    femalecount = 0
+    # print(student_data_dict[tgnum])
+    for student in student_data_dict[tgnum].values():
+        # print(student)
+        if student["Gender"] == "Male":
+            malecount += 1
+        elif student["Gender"] == "Female":
+            femalecount += 1
+    print(tgnum, "Males:", malecount, "Females:", femalecount, "bad groups:",exceed[tgnum])
