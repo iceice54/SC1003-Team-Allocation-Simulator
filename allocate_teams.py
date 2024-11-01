@@ -191,7 +191,7 @@ for tgnum in student_data_dict:
     groupz = (allocate_teams(output))
     for group in groupz:
         for student in group:
-            final_student_data = [tgnum, student[0],student[4],student[3],student[2],str(student[1]),str(student[6])] #“Tutorial Group”, “Student ID”, “School”, “Name”, “Gender”, “CGPA”, "Team Assigned"
+            final_student_data = [tgnum, student[0],student[4],student[3],student[2],str(student[1]),str(student[6]+1)] #“Tutorial Group”, “Student ID”, “School”, “Name”, “Gender”, “CGPA”, "Team Assigned"
             final_data.append(final_student_data)
     cgpas = []
 
