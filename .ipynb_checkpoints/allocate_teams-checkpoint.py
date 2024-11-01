@@ -276,6 +276,6 @@ ax.legend(wedges, legend_labels, title="Distribution of Success Cases", loc="bes
 plt.axis('equal')
 plt.show()
 
-#averageSD= sum(stdevs)/len(stdevs)
-#print(averageSD)
-#averagegpa= sum(cgpas)/len(cgpas)
+averageSD= sum(stdevs)/len(stdevs)
+print(averageSD)
+averagegpa= sum(cgpas)/len(cgpas)
