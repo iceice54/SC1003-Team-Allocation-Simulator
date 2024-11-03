@@ -15,38 +15,43 @@ def allocate_teams(student_list):
         for group_num in range(len(group_list)):
             next_student = remaining_students[index]
             group = group_list[group_num]
-            check_and_assign(next_student, group, group_num, remaining_students, all_students, group_list)
+            if not exceed_gender_or_school(group, next_student):
+                assign_group(next_student, group_num, group, remaining_students)
+            else:
+                if swapper(next_student, all_students, remaining_students, group_list, group_num, group):
+                    pass
+                else:
+                    #if swapper cant find any valid target, just assign
+                    assign_group(next_student, group_num, group, remaining_students)
 
-    total_cgpa_per_group = []
+
+    group_cgpa = []
     for group_num in range(len(group_list)):
         total_cgpa = 0
         for student in group_list[group_num]:
             total_cgpa += student[1]
-        total_cgpa_per_group.append([group_num, cgpa])
+        group_cgpa.append([group_num, cgpa])
 
-    sorted_total_cgpa_per_group = []
-    for group in total_cgpa_per_group:
-        sort_by_ascending_cgpa(group, group[1], sorted_total_cgpa_per_group)
+    sorted_output = []
+    for group in group_cgpa:
+        sort_by_ascending_cgpa(group, group[1], sorted_output)
     #sorted_output[[0, 16.4], [1, 16.5], [7, 16.7], ...]
 
     #each group left 1 slot, assign based on gpa e.g. lowest gpa group picks highest gpa student
-    for group_num_and_cgpa in sorted_total_cgpa_per_group:
-        group_num = group_num_and_cgpa[0]
+    for i in range(len(sorted_output)):
+        group_num = sorted_output[i][0]
         group = group_list[group_num]
-        next_student = remaining_students[-1]
-        check_and_assign(next_student, group, group_num, remaining_students, all_students, group_list)
-              
-    return group_list
-
-def check_and_assign(next_student, group, group_num, remaining_students, all_students, group_list):
-    if not exceed_gender_or_school(group, next_student):
-            assign_group(next_student, group_num, group, remaining_students)
-    else:
-        if swapper(next_student, all_students, remaining_students, group_list, group_num, group):
-            pass
+        student = remaining_students[-1]
+        if not exceed_gender_or_school(group, student):
+            assign_group(student, group_num, group, remaining_students)
         else:
-            #if swapper cant find any valid target, just assign
-            assign_group(next_student, group_num, group, remaining_students)
+            if swapper(student, all_students, remaining_students, group_list, group_num, group):
+                pass
+            else:
+                #if swapper cant find any valid target, just assign
+                assign_group(student, group_num, group, remaining_students)            
+
+    return group_list
 
 def assign_group(student, group_num, group, remaining_students):
     student[6] = group_num
@@ -59,14 +64,13 @@ def swap_validator(student, try_student, group_list, group):
     if exceed_gender_or_school(group, try_student):
         return False
     
-    #try_student already assigned to a group
     if try_student[5]:
         #create copy of try student group and remove try student to see 
         #if student will fit in try student group after swap
         try_student_group_copy = group_list[try_student[6]][:]
         try_student_group_copy.remove(try_student)
         return not exceed_gender_or_school(try_student_group_copy, student)
-    else:   
+    else:
         return True
 
 def swapper(student, all_students, remaining_students, group_list, group_num, group):
@@ -178,17 +182,16 @@ unsuccessful = 0
 half = 0
 stdevs = []
 final_data = []
-<<<<<<< HEAD
 schoolfail = 0
 genderfail = 0
+totalcgpa = 0
+mean_cgpas_per_tutorial_group = []
 
-=======
-exceed = {}
-ccgpas = []
->>>>>>> 6e7e3c93c870d404762f3ac8ca8fba4c0ac17593
+
 for tgnum in student_data_dict:
     output = []
     tutorial_group = student_data_dict[tgnum]
+    cgpas = []
     for id, data in tutorial_group.items():
         student_data = [id, data['CGPA'], data['Gender'], data['Name'], data['School'], data['Assigned'], data['Group Number']]
         cgpa = student_data[1]
@@ -198,11 +201,7 @@ for tgnum in student_data_dict:
         for student in group:
             final_student_data = [tgnum, student[0],student[4],student[3],student[2],str(student[1]),str(student[6]+1)] #“Tutorial Group”, “Student ID”, “School”, “Name”, “Gender”, “CGPA”, "Team Assigned"
             final_data.append(final_student_data)
-    cgpas = []
-<<<<<<< HEAD
-=======
     
->>>>>>> 2cf9b2901736745bf356893a0980d542a02b0b6e
     for group in groupz:
         schoolpass = True
         genderpass = True
@@ -216,7 +215,6 @@ for tgnum in student_data_dict:
             #student[id, cgpa, gender, name, school, assigned, group number]
             increase_count(schools, student[4])
             increase_count(genders, student[2])
-
         #add gender and school of new student
         for school_count in schools.values():
             if school_count > 2:
@@ -224,9 +222,6 @@ for tgnum in student_data_dict:
         for gender_count in genders.values():
             if gender_count > 3:
                 genderpass = False  
-                print(genders)
-                increase_count(exceed, tgnum)
-                print(tgnum)
         if not schoolpass and not genderpass:
             unsuccessful += 1
         elif not schoolpass:
@@ -235,20 +230,16 @@ for tgnum in student_data_dict:
         elif not genderpass:
             half += 1
             genderfail += 1
-            print(genders)
+            #print(genders)
         else:
             successful += 1
 
         cgpas.append(cgpa)
 
-<<<<<<< HEAD
-    ccgpas.append(max(cgpas) - min(cgpas))
-=======
->>>>>>> 2cf9b2901736745bf356893a0980d542a02b0b6e
 
     # Step 1: Compute the mean
     mean = sum(cgpas) / 10
-
+    mean_cgpas_per_tutorial_group.append(mean)
     # Step 2: Calculate squared differences
     squared_diffs = [(x - mean) ** 2 for x in cgpas]
 
@@ -264,29 +255,21 @@ with open('new_records.csv','w') as f:
     for i in final_data:
         f.writelines(','.join(i))
         f.write('\n')
-            
-print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
-<<<<<<< HEAD
-# print(stdevs)
-pprint.pprint(exceed)
-print(sum(ccgpas)/120)
 
-for tgnum in exceed:
-    malecount = 0
-    femalecount = 0
-    # print(student_data_dict[tgnum])
-    for student in student_data_dict[tgnum].values():
-        # print(student)
-        if student["Gender"] == "Male":
-            malecount += 1
-        elif student["Gender"] == "Female":
-            femalecount += 1
-    print(tgnum, "Males:", malecount, "Females:", femalecount, "bad groups:",exceed[tgnum])
-=======
-print(stdevs)
+# Data Analysis Part
+      
+#print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
+#print(stdevs)
+for a in stdevs:
+    if a >= a:
+        a = a
+minSD= a
+print(minSD)
+    
 labels = ['Successful', 'Half Successful', 'Not Successful']
 sizes = [successful,half,unsuccessful ]
 colors = ['#99ff99', '#FFA500', '#C30000']
+
 # Filter out segments with non-zero values for plotting
 filtered_labels = [label for i, label in enumerate(labels) if sizes[i] > 0]
 filtered_sizes = [size for size in sizes if size > 0]
@@ -295,7 +278,6 @@ filtered_sizes = [size for size in sizes if size > 0]
 total = sum(sizes)
 percentages = [size / total * 100 for size in sizes]
 percentages[-1] = 100 - sum(percentages[:-1])  # Adjust last percentage to ensure total is 100%
-
 
 # Create the formatted labels with percentages for the legend
 legend_labels = [f'{label}: {percentage:.1f}%' for label, percentage in zip(labels, percentages)]
@@ -313,14 +295,18 @@ ax.legend(wedges, legend_labels, title="Distribution of Success Cases", loc="bes
 plt.axis('equal')
 plt.show()
 
-<<<<<<< HEAD
 averageSD= sum(stdevs)/len(stdevs)
-print(averageSD)
-print(cgpas)
-print(schoolfail,genderfail)
-=======
-#averageSD= sum(stdevs)/len(stdevs)
 #print(averageSD)
-#averagegpa= sum(cgpas)/len(cgpas)
->>>>>>> 2cf9b2901736745bf356893a0980d542a02b0b6e
->>>>>>> 6e7e3c93c870d404762f3ac8ca8fba4c0ac17593
+#print(cgpas)
+#print(schoolfail,genderfail)
+# Placeholder for storing average CGPA for each tutorial group
+mean_of_means = sum(mean_cgpas_per_tutorial_group) / len(mean_cgpas_per_tutorial_group)
+print(f"Mean of the Mean CGPAs across all tutorial groups: {mean_of_means:.2f}")
+percentofAvSDovermeanmean= (averageSD/mean_of_means)*100  #Average SD over mean of the mean as a percentage.
+percentofmeanmean=(mean_of_means/100)*10
+print(f"{percentofAvSDovermeanmean:.2f}%")
+print(f"10 percent of the mean of the mean of the data set is {percentofmeanmean:.2f}%")
+ax = plt.subplot()
+text = ax.violinplot(stdevs,showmeans=True,vert=False)
+ax.legend(minSD,title= "Standard Deviation",loc='best')
+plt.show()
