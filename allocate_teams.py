@@ -236,20 +236,18 @@ for tgnum in student_data_dict:
 
         cgpas.append(cgpa)
 
-
     # Step 1: Compute the mean
     mean = sum(cgpas) / 10
-    mean_cgpas_per_tutorial_group.append(mean)
+    mean_cgpas_per_tutorial_group.append(mean)# Storing the mean of each tutorial group together in to a list
     # Step 2: Calculate squared differences
     squared_diffs = [(x - mean) ** 2 for x in cgpas]
 
     # Step 3: Calculate variance
-    variance = sum(squared_diffs) / len(data)
+    variance = sum(squared_diffs) / len(cgpas)
 
     # Step 4: Calculate standard deviation
     stdev = variance ** 0.5
-    stdevs.append(stdev)
-        
+    stdevs.append(stdev)     
 with open('new_records.csv','w') as f:
     f.write('Tutorial Group,Student ID,School,Name,Gender,CGPA,Team Assigned\n')
     for i in final_data:
@@ -257,14 +255,8 @@ with open('new_records.csv','w') as f:
         f.write('\n')
 
 # Data Analysis Part
-      
+    
 #print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
-#print(stdevs)
-for a in stdevs:
-    if a >= a:
-        a = a
-minSD= a
-print(minSD)
     
 labels = ['Successful', 'Half Successful', 'Not Successful']
 sizes = [successful,half,unsuccessful ]
@@ -296,17 +288,12 @@ plt.axis('equal')
 plt.show()
 
 averageSD= sum(stdevs)/len(stdevs)
-#print(averageSD)
+print(averageSD)
 #print(cgpas)
 #print(schoolfail,genderfail)
-# Placeholder for storing average CGPA for each tutorial group
 mean_of_means = sum(mean_cgpas_per_tutorial_group) / len(mean_cgpas_per_tutorial_group)
 print(f"Mean of the Mean CGPAs across all tutorial groups: {mean_of_means:.2f}")
 percentofAvSDovermeanmean= (averageSD/mean_of_means)*100  #Average SD over mean of the mean as a percentage.
-percentofmeanmean=(mean_of_means/100)*10
 print(f"{percentofAvSDovermeanmean:.2f}%")
-print(f"10 percent of the mean of the mean of the data set is {percentofmeanmean:.2f}%")
-ax = plt.subplot()
-text = ax.violinplot(stdevs,showmeans=True,vert=False)
-ax.legend(minSD,title= "Standard Deviation",loc='best')
+plt.violinplot(stdevs,showmeans=True)
 plt.show()
