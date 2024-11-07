@@ -186,6 +186,8 @@ schoolfail = 0
 genderfail = 0
 totalcgpa = 0
 mean_cgpas_per_tutorial_group = []
+failedtg = []
+gender_counts_failed_tg = {}
 
 
 for tgnum in student_data_dict:
@@ -215,13 +217,13 @@ for tgnum in student_data_dict:
             #student[id, cgpa, gender, name, school, assigned, group number]
             increase_count(schools, student[4])
             increase_count(genders, student[2])
-        #add gender and school of new student
+        #add gender and school of new student 
         for school_count in schools.values():
             if school_count > 2:
                 schoolpass = False
         for gender_count in genders.values():
             if gender_count > 3:
-                genderpass = False  
+                genderpass = False 
         if not schoolpass and not genderpass:
             unsuccessful += 1
         elif not schoolpass:
@@ -231,11 +233,14 @@ for tgnum in student_data_dict:
             half += 1
             genderfail += 1
             #print(genders)
+            #print(tgnum)
+            failedtg.append(tgnum)# add the tutorial number with the failed group into a list
+            failedtg = list(set(failedtg))# Ensures that if there are multiple groups with a tutorial group that fails the criteria, print the turtorial group number once
         else:
             successful += 1
 
         cgpas.append(cgpa)
-
+      
     # Step 1: Compute the mean
     mean = sum(cgpas) / 10
     mean_cgpas_per_tutorial_group.append(mean)# Storing the mean of each tutorial group together in to a list
@@ -287,10 +292,120 @@ ax.legend(wedges, legend_labels, title="Distribution of Success Cases", loc="bes
 plt.axis('equal')
 plt.show()
 
+Barfig, Barax = plt.subplots()
+
+failedcriteria = ['Failed the gender cases', 'Failed the school criteria']
+counts = [genderfail, schoolfail]
+bar_labels = ['red', 'red']
+bar_colors = ['tab:red', 'tab:red']
+
+bars = Barax.bar(failedcriteria, counts, label=bar_labels, color=bar_colors)
+
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval + 0.5, f'{yval}', ha='center', va='center')
+    
+Barax.set_ylabel('Number of failed cases')
+Barax.set_title('Analysis of failed cases')
+
+plt.show()# print bar graph for school fail and gender fail
+
+# Iterate through the failed tutorial groups
+for tgnum in failedtg:  # failedtg is the list of failed tutorial groups
+    boys_count = 0
+    girls_count = 0
+    
+    # Access the tutorial group's data
+    tutorial_group = student_data_dict[tgnum]
+    
+    # Count boys and girls in the failed tutorial group
+    for id, data in tutorial_group.items():
+        gender = data['Gender']
+        if gender in ['M', 'Male']:
+            boys_count += 1
+        elif gender in ['F', 'Female']:
+            girls_count += 1
+    
+    # Store the counts for this tutorial group
+    gender_counts_failed_tg[tgnum] = {'Boys': boys_count, 'Girls': girls_count}
+
+sorted_failed_tgs = sorted(gender_counts_failed_tg.items(), key=lambda x: x[0])
+band1 = 0
+band2 = 0
+band3 = 0
+band4 = 0
+numoftgfailed = 0
+gcounth = 0 
+bcounth = 0
+# Print the sorted results
+print("Total gender counts for tutorial groups that failed the gender case (sorted by tutorial group number):")
+for tg, counts in sorted_failed_tgs:
+    numoftgfailed +=1
+    if counts['Girls'] > counts['Boys']:
+        gcounth += 1
+    else:
+        bcounth += 1
+    if counts['Girls'] == 31:
+        band1 += 1 
+    elif counts['Girls'] == 32:
+        band2 += 1
+    elif counts['Girls'] == 33:
+        band3 += 1
+    elif counts['Girls'] == 34:
+        band4 += 1
+    print(f"Tutorial Group {tg}: Boys = {counts['Boys']}, Girls = {counts['Girls']}")
+
+print(f"The total number of tutorial classes with failed groups is {numoftgfailed}.")
+
+print(band1)
+print(band2)
+print(band3)
+print(band4)
+print(gcounth)
+print(bcounth)
+
+bar3fig, bar3ax = plt.subplots()
+
+genderbalance = ['Classes with more girls', 'Classes with more boys']
+counts = [gcounth, bcounth]
+bar_labels = ['pink', 'blue']
+bar_colors = ['tab:pink', 'tab:blue']
+
+bars3 = bar3ax.bar(genderbalance, counts, label=bar_labels, color=bar_colors)
+
+for bar in bars3:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval + 0.5, f'{yval}', ha='center', va='bottom')
+
+bar3ax.set_ylabel('Number of tutorial groups')
+bar3ax.set_title('Distribution of failed tutorial groups')
+
+plt.show()
+
+
+Bar2fig, Bar2ax = plt.subplots()
+
+Bands = ['31 girls', '32 girls', '33 girls', '34 girls']
+counts = [band1, band2, band3, band4]
+bar_labels = ['red', 'blue', 'green', 'orange']
+bar_colors = ['tab:red', 'tab:blue', 'tab:green', 'tab:orange']
+
+bars2= Bar2ax.bar(Bands, counts, label=bar_labels, color=bar_colors)
+
+for bar in bars2:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval + 0.5, f'{yval}', ha='center', va='baseline')
+
+Bar2ax.set_ylabel('Number of tutorial groups')
+Bar2ax.set_title('Distribution of the number of girls in failed tutorial groups')
+
+plt.show()
+
+#Average SD Analysis
+
 averageSD= sum(stdevs)/len(stdevs)
-print(averageSD)
+#print(averageSD)
 #print(cgpas)
-#print(schoolfail,genderfail)
 mean_of_means = sum(mean_cgpas_per_tutorial_group) / len(mean_cgpas_per_tutorial_group)
 print(f"Mean of the Mean CGPAs across all tutorial groups: {mean_of_means:.2f}")
 percentofAvSDovermeanmean= (averageSD/mean_of_means)*100  #Average SD over mean of the mean as a percentage.
