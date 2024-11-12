@@ -34,7 +34,7 @@ def allocate_teams(student_list):
 
     sorted_output = []
     for group in group_cgpa:
-        sort_by_ascending_cgpa(group, group[1], sorted_output)
+        add_and_sort_by_ascending_cgpa(group, group[1], sorted_output)
     #sorted_output[[0, 16.4], [1, 16.5], [7, 16.7], ...]
 
     #each group left 1 slot, assign based on gpa e.g. lowest gpa group picks highest gpa student
@@ -149,7 +149,7 @@ def exceed_gender_or_school(group, new_student):
             return True
     return False
 
-def sort_by_ascending_cgpa(to_sort, cgpa, output):
+def add_and_sort_by_ascending_cgpa(to_sort, cgpa, output):
     if output == []:
         output.append(to_sort)
         return
@@ -197,7 +197,7 @@ for tgnum in student_data_dict:
     for id, data in tutorial_group.items():
         student_data = [id, data['CGPA'], data['Gender'], data['Name'], data['School'], data['Assigned'], data['Group Number']]
         cgpa = student_data[1]
-        sort_by_ascending_cgpa(student_data, cgpa, output)
+        add_and_sort_by_ascending_cgpa(student_data, cgpa, output)
     groupz = (allocate_teams(output))
     for group in groupz:
         for student in group:
