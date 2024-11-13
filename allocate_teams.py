@@ -1,10 +1,17 @@
 import matplotlib.pyplot as plt
-def allocate_teams(student_list):
+import ipywidgets as widgets
+import math as math
+def allocate_teams(student_list, students_per_group):
+    num_of_groups = math.ceil(50 / students_per_group) 
+    print(num_of_groups)
     all_students = student_list[:]
     remaining_students = student_list[:]
-    group_list = [[] for i in range(10)]
+    group_list = [[] for i in range(num_of_groups)]
+
+    
+    num_to_pick = students_per_group - 1
     #assign 4 students to each group
-    for i in range(4):
+    for i in range(num_to_pick):
         #1st and 3rd pick take highest cgpa
         if i % 2 == 0:
             index = -1
@@ -15,7 +22,7 @@ def allocate_teams(student_list):
         for group_num in range(len(group_list)):
             next_student = remaining_students[index]
             group = group_list[group_num]
-            if not exceed_gender_or_school(group, next_student):
+            if not exceed_gender_or_school(group, next_student, students_per_group):
                 assign_group(next_student, group_num, group, remaining_students)
             else:
                 if swapper(next_student, all_students, remaining_students, group_list, group_num, group):
@@ -38,18 +45,20 @@ def allocate_teams(student_list):
     #sorted_output[[0, 16.4], [1, 16.5], [7, 16.7], ...]
 
     #each group left 1 slot, assign based on gpa e.g. lowest gpa group picks highest gpa student
-    for i in range(len(sorted_output)):
+    i = 0
+    while len(remaining_students) > 0:
         group_num = sorted_output[i][0]
         group = group_list[group_num]
         student = remaining_students[-1]
-        if not exceed_gender_or_school(group, student):
+        if not exceed_gender_or_school(group, student, students_per_group):
             assign_group(student, group_num, group, remaining_students)
         else:
             if swapper(student, all_students, remaining_students, group_list, group_num, group):
                 pass
             else:
                 #if swapper cant find any valid target, just assign
-                assign_group(student, group_num, group, remaining_students)            
+                assign_group(student, group_num, group, remaining_students)    
+        i+=1     
 
     return group_list
 
@@ -60,8 +69,8 @@ def assign_group(student, group_num, group, remaining_students):
     if student in remaining_students:
         remaining_students.remove(student)
 
-def swap_validator(student, try_student, group_list, group):
-    if exceed_gender_or_school(group, try_student):
+def swap_validator(student, try_student, group_list, group, students_per_group):
+    if exceed_gender_or_school(group, try_student, students_per_group):
         return False
     
     if try_student[5]:
@@ -69,7 +78,7 @@ def swap_validator(student, try_student, group_list, group):
         #if student will fit in try student group after swap
         try_student_group_copy = group_list[try_student[6]][:]
         try_student_group_copy.remove(try_student)
-        return not exceed_gender_or_school(try_student_group_copy, student)
+        return not exceed_gender_or_school(try_student_group_copy, student, students_per_group)
     else:
         return True
 
@@ -88,14 +97,14 @@ def swapper(student, all_students, remaining_students, group_list, group_num, gr
         
         if search_up == True:
             try_student = all_students[index + index_up]
-            if swap_validator(student, try_student, group_list, group):
+            if swap_validator(student, try_student, group_list, group, students_per_group):
                 swap = True
                 swap_student = try_student
                 break
 
         if search_down == True:
             try_student = all_students[index - index_down]
-            if swap_validator(student, try_student, group_list, group):
+            if swap_validator(student, try_student, group_list, group, students_per_group):
                 swap = True
                 swap_student = try_student
                 break
@@ -130,9 +139,12 @@ def increase_count(dict, key):
     else:
         dict[key] += 1
 
-def exceed_gender_or_school(group, new_student):
+def exceed_gender_or_school(group, new_student, students_per_group):
     schools = {}
     genders = {}
+    max_schools = students_per_group // 2
+    max_genders = math.ceil(students_per_group / 2)
+
     #tally current genders and schools for each group
     for existing_student in group:
         #student[id, cgpa, gender, name, school, assigned, group number]
@@ -142,10 +154,10 @@ def exceed_gender_or_school(group, new_student):
     increase_count(schools, new_student[4])
     increase_count(genders, new_student[2])
     for school_count in schools.values():
-        if school_count > 2:
+        if school_count > max_schools:
             return True
     for gender_count in genders.values():
-        if gender_count > 3:
+        if gender_count > max_genders:
             return True
     return False
 
@@ -191,6 +203,7 @@ gender_counts_failed_tg = {}
 schoolnum=[]
 numschool={}
 
+students_per_group = 5
 
 for tgnum in student_data_dict:
     output = []
@@ -203,7 +216,8 @@ for tgnum in student_data_dict:
         school = data['School']
         # Increment the count for the school
         numschool[school] = numschool.get(school, 0) + 1
-    groupz = (allocate_teams(output))
+        
+    groupz = (allocate_teams(output, students_per_group))
     for group in groupz:
         for student in group:
             final_student_data = [tgnum, student[0],student[4],student[3],student[2],str(student[1]),str(student[6]+1)] #“Tutorial Group”, “Student ID”, “School”, “Name”, “Gender”, “CGPA”, "Team Assigned"
@@ -215,6 +229,10 @@ for tgnum in student_data_dict:
         cgpa = 0
         schools = {}
         genders = {}
+        max_schools = students_per_group // 2
+        max_genders = math.ceil(students_per_group / 2)
+        print(max_schools, "school")
+        print(max_genders)
         
         #tally current genders and schools for each group
         for student in group:
@@ -224,10 +242,10 @@ for tgnum in student_data_dict:
             increase_count(genders, student[2])
         #add gender and school of new student 
         for school_count in schools.values():
-            if school_count > 2:
+            if school_count > max_schools:
                 schoolpass = False
         for gender_count in genders.values():
-            if gender_count > 3:
+            if gender_count > max_genders:
                 genderpass = False 
         if not schoolpass and not genderpass:
             unsuccessful += 1
@@ -266,7 +284,10 @@ with open('new_records.csv','w') as f:
 
 # Data Analysis Part
     
-#print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
+
+
+print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
+
 labels = ['Successful', 'Half Successful', 'Not Successful']
 sizes = [successful,half,unsuccessful ]
 colors = ['#99ff99', '#FFA500', '#C30000']
