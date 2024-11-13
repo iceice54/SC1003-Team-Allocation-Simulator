@@ -188,6 +188,8 @@ totalcgpa = 0
 mean_cgpas_per_tutorial_group = []
 failedtg = []
 gender_counts_failed_tg = {}
+schoolnum=[]
+numschool={}
 
 
 for tgnum in student_data_dict:
@@ -198,6 +200,9 @@ for tgnum in student_data_dict:
         student_data = [id, data['CGPA'], data['Gender'], data['Name'], data['School'], data['Assigned'], data['Group Number']]
         cgpa = student_data[1]
         add_and_sort_by_ascending_cgpa(student_data, cgpa, output)
+        school = data['School']
+        # Increment the count for the school
+        numschool[school] = numschool.get(school, 0) + 1
     groupz = (allocate_teams(output))
     for group in groupz:
         for student in group:
@@ -252,7 +257,7 @@ for tgnum in student_data_dict:
 
     # Step 4: Calculate standard deviation
     stdev = variance ** 0.5
-    stdevs.append(stdev)     
+    stdevs.append(stdev)   
 with open('new_records.csv','w') as f:
     f.write('Tutorial Group,Student ID,School,Name,Gender,CGPA,Team Assigned\n')
     for i in final_data:
@@ -262,7 +267,6 @@ with open('new_records.csv','w') as f:
 # Data Analysis Part
     
 #print(f"{successful} are successful, {unsuccessful} are unsuccessful and {half} are half successful")
-    
 labels = ['Successful', 'Half Successful', 'Not Successful']
 sizes = [successful,half,unsuccessful ]
 colors = ['#99ff99', '#FFA500', '#C30000']
@@ -329,14 +333,14 @@ for tgnum in failedtg:  # failedtg is the list of failed tutorial groups
     # Store the counts for this tutorial group
     gender_counts_failed_tg[tgnum] = {'Boys': boys_count, 'Girls': girls_count}
 
-sorted_failed_tgs = sorted(gender_counts_failed_tg.items(), key=lambda x: x[0])
+sorted_failed_tgs = sorted(gender_counts_failed_tg.items(), key=lambda x: x[0])# Uses lambda function as temporary way to read x as the key without defining the function
 band1 = 0
 band2 = 0
 band3 = 0
 band4 = 0
 numoftgfailed = 0
-gcounth = 0 
-bcounth = 0
+gcounth = 0 # Number of tutorial groups with more girls
+bcounth = 0 # Number of turtorial groups with more girls
 # Print the sorted results
 print("Total gender counts for tutorial groups that failed the gender case (sorted by tutorial group number):")
 for tg, counts in sorted_failed_tgs:
@@ -345,6 +349,7 @@ for tg, counts in sorted_failed_tgs:
         gcounth += 1
     else:
         bcounth += 1
+    
     if counts['Girls'] == 31:
         band1 += 1 
     elif counts['Girls'] == 32:
@@ -357,13 +362,6 @@ for tg, counts in sorted_failed_tgs:
 
 print(f"The total number of tutorial classes with failed groups is {numoftgfailed}.")
 
-print(band1)
-print(band2)
-print(band3)
-print(band4)
-print(gcounth)
-print(bcounth)
-
 bar3fig, bar3ax = plt.subplots()
 
 genderbalance = ['Classes with more girls', 'Classes with more boys']
@@ -375,13 +373,12 @@ bars3 = bar3ax.bar(genderbalance, counts, label=bar_labels, color=bar_colors)
 
 for bar in bars3:
     yval = bar.get_height()
-    plt.text(bar.get_x() + bar.get_width()/2, yval + 0.5, f'{yval}', ha='center', va='bottom')
+    plt.text(bar.get_x() + bar.get_width()/2, yval, f'{yval}', ha='center', va='bottom')
 
 bar3ax.set_ylabel('Number of tutorial groups')
 bar3ax.set_title('Distribution of failed tutorial groups')
 
 plt.show()
-
 
 Bar2fig, Bar2ax = plt.subplots()
 
@@ -410,5 +407,34 @@ mean_of_means = sum(mean_cgpas_per_tutorial_group) / len(mean_cgpas_per_tutorial
 print(f"Mean of the Mean CGPAs across all tutorial groups: {mean_of_means:.2f}")
 percentofAvSDovermeanmean= (averageSD/mean_of_means)*100  #Average SD over mean of the mean as a percentage.
 print(f"{percentofAvSDovermeanmean:.2f}%")
-plt.violinplot(stdevs,showmeans=True)
+fig, axes = plt.subplots()
+
+# Set the x labels
+axes.set_xlabel('Standard Deviation of 120 tutorial groups')
+plt.violinplot(stdevs,vert = False,showmeans=True)
+axes.get_yaxis().set_visible(False)
+plt.show()
+
+#Analyse the different number of different schools
+
+Bar4fig, Bar4ax = plt.subplots()
+
+Bands = numschool.keys()
+counts = numschool.values()
+
+bars4 = Bar4ax.bar(Bands, counts)
+
+# Add text above bars
+for bar in bars4:
+    yval = bar.get_height()
+    Bar4ax.text(bar.get_x() + bar.get_width()/2, yval + 0.5, f'{yval}', ha='center', va='baseline')
+
+# Adjust x-axis labels
+Bar4ax.set_xticks(range(len(Bands)))  # Set the nunmber of x axis variable to the number of schools, otherwise there will be a warning
+Bar4ax.set_xticklabels(Bands, rotation=45, ha='right')  # Rotate labels for better readability
+
+Bar4ax.set_ylabel('Number of students')
+Bar4ax.set_title('Distribution of the students across the different schools')
+
+plt.tight_layout()  # Adjust layout to avoid clipping
 plt.show()
